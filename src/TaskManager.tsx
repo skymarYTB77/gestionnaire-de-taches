@@ -8,18 +8,7 @@ import { format, isToday, isThisWeek, isThisMonth, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import '../styles/TaskManager.css';
 import { db, auth } from '../lib/firebase';
-import { 
-  collection, 
-  query, 
-  where, 
-  onSnapshot, 
-  addDoc, 
-  deleteDoc, 
-  doc, 
-  updateDoc,
-  serverTimestamp,
-  orderBy
-} from 'firebase/firestore';
+import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 
 export interface Task {
   id: string;
@@ -40,28 +29,31 @@ export function TaskManager({ onClose }: TaskManagerProps) {
   const [showNewTaskModal, setShowNewTaskModal] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDueDate, setNewTaskDueDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [message, setMessage] = useState<string | null>(null);
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (!auth.currentUser) return;
 
     const tasksRef = collection(db, 'tasks');
-    const q = query(
-      tasksRef,
-      where('userId', '==', auth.currentUser.uid),
-      orderBy('createdAt', 'desc')
-    );
+    const q = query(tasksRef, where('userId', '==', auth.currentUser.uid));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const tasksData = snapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || new Date().toISOString()
+        ...doc.data()
       })) as Task[];
       setTasks(tasksData);
     });
 
     return () => unsubscribe();
   }, []);
+
+  const showTemporaryMessage = (msg: string) => {
+    setMessage(msg);
+    setTimeout(() => setMessage(null), 3000);
+  };
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
@@ -71,6 +63,7 @@ export function TaskManager({ onClose }: TaskManagerProps) {
     if (active.id !== over.id) {
       const oldIndex = tasks.findIndex(task => task.id === active.id);
       const newIndex = tasks.findIndex(task => task.id === over.id);
+      
       setTasks(arrayMove(tasks, oldIndex, newIndex));
     }
 
@@ -79,15 +72,15 @@ export function TaskManager({ onClose }: TaskManagerProps) {
 
     if (newColumn) {
       const taskRef = doc(db, 'tasks', taskId);
-      await updateDoc(taskRef, { 
-        column: newColumn,
-        updatedAt: serverTimestamp()
-      });
+      await updateDoc(taskRef, { column: newColumn });
     }
   };
 
   const addNewTask = async () => {
-    if (!newTaskTitle.trim() || !newTaskDueDate || !auth.currentUser) return;
+    if (!newTaskTitle.trim() || !newTaskDueDate || !auth.currentUser) {
+      showTemporaryMessage('Veuillez remplir tous les champs');
+      return;
+    }
 
     const dueDate = parseISO(newTaskDueDate);
     let column: Task['column'] = 'thisMonth';
@@ -98,22 +91,42 @@ export function TaskManager({ onClose }: TaskManagerProps) {
       column = 'thisWeek';
     }
 
-    await addDoc(collection(db, 'tasks'), {
-      title: newTaskTitle,
-      dueDate: newTaskDueDate,
-      column,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      userId: auth.currentUser.uid
-    });
+    try {
+      await addDoc(collection(db, 'tasks'), {
+        title: newTaskTitle,
+        dueDate: newTaskDueDate,
+        column,
+        createdAt: new Date().toISOString(),
+        userId: auth.currentUser.uid
+      });
 
-    setNewTaskTitle('');
-    setNewTaskDueDate(format(new Date(), 'yyyy-MM-dd'));
-    setShowNewTaskModal(false);
+      setNewTaskTitle('');
+      setNewTaskDueDate(format(new Date(), 'yyyy-MM-dd'));
+      setShowNewTaskModal(false);
+      showTemporaryMessage('Tâche ajoutée avec succès !');
+    } catch (error) {
+      showTemporaryMessage('Erreur lors de l\'ajout de la tâche');
+      console.error('Erreur lors de l\'ajout de la tâche:', error);
+    }
   };
 
-  const deleteTask = async (taskId: string) => {
-    await deleteDoc(doc(db, 'tasks', taskId));
+  const confirmDeleteTask = (taskId: string) => {
+    setTaskToDelete(taskId);
+    setShowDeleteConfirmModal(true);
+  };
+
+  const deleteTask = async () => {
+    if (!taskToDelete) return;
+
+    try {
+      await deleteDoc(doc(db, 'tasks', taskToDelete));
+      setShowDeleteConfirmModal(false);
+      setTaskToDelete(null);
+      showTemporaryMessage('Tâche supprimée !');
+    } catch (error) {
+      showTemporaryMessage('Erreur lors de la suppression de la tâche');
+      console.error('Erreur lors de la suppression de la tâche:', error);
+    }
   };
 
   return (
@@ -151,9 +164,9 @@ export function TaskManager({ onClose }: TaskManagerProps) {
             strategy={verticalListSortingStrategy}
           >
             {viewMode === 'kanban' ? (
-              <KanbanBoard tasks={tasks} onDeleteTask={deleteTask} />
+              <KanbanBoard tasks={tasks} onDeleteTask={confirmDeleteTask} />
             ) : (
-              <ListView tasks={tasks} onDeleteTask={deleteTask} />
+              <ListView tasks={tasks} onDeleteTask={confirmDeleteTask} />
             )}
           </SortableContext>
         </DndContext>
@@ -194,6 +207,47 @@ export function TaskManager({ onClose }: TaskManagerProps) {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {showDeleteConfirmModal && (
+        <div className="modal">
+          <div className="modal-content task-modal">
+            <button className="close-modal" onClick={() => {
+              setShowDeleteConfirmModal(false);
+              setTaskToDelete(null);
+            }}>
+              <X size={24} />
+            </button>
+            <h3>Confirmer la suppression</h3>
+            <p className="delete-confirmation-text">
+              Êtes-vous sûr de vouloir supprimer cette tâche ?
+              Cette action est irréversible.
+            </p>
+            <div className="delete-confirmation-actions">
+              <button 
+                onClick={() => {
+                  setShowDeleteConfirmModal(false);
+                  setTaskToDelete(null);
+                }}
+                className="cancel-delete"
+              >
+                Annuler
+              </button>
+              <button 
+                onClick={deleteTask}
+                className="confirm-delete"
+              >
+                Supprimer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {message && (
+        <div className="task-message">
+          {message}
         </div>
       )}
     </div>

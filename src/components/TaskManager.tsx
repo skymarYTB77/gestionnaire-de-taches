@@ -30,8 +30,6 @@ export function TaskManager({ onClose }: TaskManagerProps) {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDueDate, setNewTaskDueDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [message, setMessage] = useState<string | null>(null);
-  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
-  const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (!auth.currentUser) return;
@@ -120,20 +118,13 @@ export function TaskManager({ onClose }: TaskManagerProps) {
     }
   };
 
-  const confirmDeleteTask = (taskId: string) => {
-    setTaskToDelete(taskId);
-    setShowDeleteConfirmModal(true);
-  };
-
-  const deleteTask = async () => {
-    if (!taskToDelete || !auth.currentUser) return;
+  const deleteTask = async (taskId: string) => {
+    if (!auth.currentUser) return;
 
     try {
-      const taskRef = doc(db, 'users', auth.currentUser.uid, 'tasks', taskToDelete);
+      const taskRef = doc(db, 'users', auth.currentUser.uid, 'tasks', taskId);
       await deleteDoc(taskRef);
-      setShowDeleteConfirmModal(false);
-      setTaskToDelete(null);
-      showTemporaryMessage('Tâche supprimée !');
+      showTemporaryMessage('Tâche terminée !');
     } catch (error) {
       showTemporaryMessage('Erreur lors de la suppression de la tâche');
       console.error('Erreur lors de la suppression de la tâche:', error);
@@ -175,9 +166,9 @@ export function TaskManager({ onClose }: TaskManagerProps) {
             strategy={verticalListSortingStrategy}
           >
             {viewMode === 'kanban' ? (
-              <KanbanBoard tasks={tasks} onDeleteTask={confirmDeleteTask} />
+              <KanbanBoard tasks={tasks} onDeleteTask={deleteTask} />
             ) : (
-              <ListView tasks={tasks} onDeleteTask={confirmDeleteTask} />
+              <ListView tasks={tasks} onDeleteTask={deleteTask} />
             )}
           </SortableContext>
         </DndContext>
@@ -216,41 +207,6 @@ export function TaskManager({ onClose }: TaskManagerProps) {
                   Ajouter
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showDeleteConfirmModal && (
-        <div className="modal">
-          <div className="modal-content task-modal">
-            <button className="close-modal" onClick={() => {
-              setShowDeleteConfirmModal(false);
-              setTaskToDelete(null);
-            }}>
-              <X size={24} />
-            </button>
-            <h3>Confirmer la suppression</h3>
-            <p className="delete-confirmation-text">
-              Êtes-vous sûr de vouloir supprimer cette tâche ?
-              Cette action est irréversible.
-            </p>
-            <div className="delete-confirmation-actions">
-              <button 
-                onClick={() => {
-                  setShowDeleteConfirmModal(false);
-                  setTaskToDelete(null);
-                }}
-                className="cancel-delete"
-              >
-                Annuler
-              </button>
-              <button 
-                onClick={deleteTask}
-                className="confirm-delete"
-              >
-                Supprimer
-              </button>
             </div>
           </div>
         </div>

@@ -178,26 +178,58 @@
   font-size: 12px;
 }
 
-.delete-task {
-  background: rgba(255, 77, 77, 0.1);
-  border: none;
-  color: #ff4d4d;
-  cursor: pointer;
-  padding: 10px;
-  border-radius: 6px;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 40px;
-  min-height: 40px;
-  z-index: 10;
+.task-checkbox {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
 }
 
-.delete-task:hover {
-  background: rgba(255, 77, 77, 0.2);
-  color: #ff6b6b;
-  transform: scale(1.1);
+.task-checkbox-input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.task-checkbox-input:checked ~ .checkmark {
+  background-color: #4f46e5;
+  border-color: #4f46e5;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.task-checkbox-input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.task-checkbox:hover .checkmark {
+  border-color: #4f46e5;
 }
 
 .modal {
@@ -284,41 +316,33 @@
   font-size: 14px;
 }
 
-.delete-confirmation-text {
-  margin: 20px 0;
-  color: #a0aec0;
-  text-align: center;
-}
-
-.delete-confirmation-actions {
+.task-form-actions {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 10px;
   margin-top: 20px;
 }
 
-.cancel-delete {
+.task-form-actions button {
   padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.task-form-actions button:first-child {
   background: rgba(255, 255, 255, 0.1);
   border: none;
-  border-radius: 4px;
   color: white;
-  cursor: pointer;
-  transition: all 0.2s;
 }
 
-.confirm-delete {
-  padding: 8px 16px;
-  background: var(--delete-gradient);
+.save-task {
+  background: var(--primary-gradient);
   border: none;
-  border-radius: 4px;
   color: white;
-  cursor: pointer;
-  transition: all 0.2s;
 }
 
-.cancel-delete:hover,
-.confirm-delete:hover {
+.task-form-actions button:hover {
   filter: brightness(1.1);
 }
 

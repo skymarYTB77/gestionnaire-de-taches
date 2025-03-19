@@ -15,7 +15,6 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Activer la persistance hors ligne
 enableIndexedDbPersistence(db).catch((err) => {
   if (err.code === 'failed-precondition') {
     console.warn('La persistance hors ligne nécessite un seul onglet ouvert à la fois.');

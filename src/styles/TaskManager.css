@@ -146,11 +146,14 @@
   border-radius: 6px;
   padding: 12px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   cursor: move;
-  transition: all 0.2s;
+  transition: all 0.3s;
   color: white;
+  gap: 12px;
+  position: relative;
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
 }
 
 .task-card:hover {
@@ -176,22 +179,24 @@
 }
 
 .delete-task {
-  background: none;
+  background: rgba(255, 77, 77, 0.1);
   border: none;
   color: #ff4d4d;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  opacity: 0.7;
+  padding: 10px;
+  border-radius: 6px;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  z-index: 10;
 }
 
 .delete-task:hover {
-  opacity: 1;
-  background: rgba(255, 77, 77, 0.1);
+  background: rgba(255, 77, 77, 0.2);
+  color: #ff6b6b;
   transform: scale(1.1);
 }
 
@@ -277,6 +282,44 @@
   border: 1px solid var(--glass-border);
   box-shadow: var(--neon-shadow);
   font-size: 14px;
+}
+
+.delete-confirmation-text {
+  margin: 20px 0;
+  color: #a0aec0;
+  text-align: center;
+}
+
+.delete-confirmation-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.cancel-delete {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.confirm-delete {
+  padding: 8px 16px;
+  background: var(--delete-gradient);
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-delete:hover,
+.confirm-delete:hover {
+  filter: brightness(1.1);
 }
 
 @keyframes fadeInOut {

@@ -8,14 +8,26 @@ import { onAuthStateChanged } from 'firebase/auth';
 function App() {
   const [showTaskManager, setShowTaskManager] = useState(false);
   const [user, setUser] = useState(auth.currentUser);
+  const [isIframe, setIsIframe] = useState(false);
 
   useEffect(() => {
+    // Vérifier si l'application est chargée dans un iframe
+    setIsIframe(window !== window.parent);
+    
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
     });
 
     return () => unsubscribe();
   }, []);
+
+  // Si c'est un iframe, afficher directement le gestionnaire de tâches
+  if (isIframe) {
+    if (!user) {
+      return <Auth onAuthSuccess={() => setUser(auth.currentUser)} />;
+    }
+    return <TaskManager onClose={() => {}} />;
+  }
 
   if (!user) {
     return <Auth onAuthSuccess={() => setUser(auth.currentUser)} />;

@@ -4,11 +4,11 @@ import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCl24z3KL07CnZ1wFexfIUtR0jzwXu1i0I",
-  authDomain: "task-manager-xxxxx.firebaseapp.com",
-  projectId: "task-manager-xxxxx",
-  storageBucket: "task-manager-xxxxx.appspot.com",
-  messagingSenderId: "xxxxx",
-  appId: "1:xxxxx:web:xxxxx"
+  authDomain: "gestionnaire-de-taches-8fafd.firebaseapp.com",
+  projectId: "gestionnaire-de-taches-8fafd",
+  storageBucket: "gestionnaire-de-taches-8fafd.appspot.com",
+  messagingSenderId: "298034237874",
+  appId: "1:298034237874:web:xxxxx" // Remplacez xxxxx par votre appId complet
 };
 
 const app = initializeApp(firebaseConfig);

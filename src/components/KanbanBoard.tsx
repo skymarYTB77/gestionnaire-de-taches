@@ -11,7 +11,8 @@ export function KanbanBoard({ tasks, onDeleteTask }: KanbanBoardProps) {
   const columns = [
     { id: 'today', title: "Aujourd'hui", color: '#00c853' },
     { id: 'thisWeek', title: 'Cette semaine', color: '#2196f3' },
-    { id: 'thisMonth', title: 'Ce mois', color: '#ff9800' }
+    { id: 'thisMonth', title: 'Ce mois', color: '#ff9800' },
+    { id: 'thisYear', title: 'Cette année', color: '#9c27b0' }
   ] as const;
 
   return (

@@ -7,6 +7,31 @@
   --delete-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   --export-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
   --neon-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+  --scrollbar-width: 10px;
+  --scrollbar-track: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb: rgba(99, 102, 241, 0.5);
+}
+
+/* Styles de scrollbar personnalisés */
+::-webkit-scrollbar {
+  width: var(--scrollbar-width);
+  height: var(--scrollbar-width);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(99, 102, 241, 0.3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.7);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
 }
 
 .task-manager-overlay {
@@ -28,11 +53,12 @@
   border-radius: 12px;
   padding: 20px;
   width: 100%;
-  max-width: 1200px;
-  height: 80vh;
+  max-width: 800px;
+  height: 600px;
   border: 1px solid var(--glass-border);
   display: flex;
   flex-direction: column;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
 }
 
 .task-manager-header {
@@ -91,12 +117,14 @@
 
 .kanban-board {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   flex: 1;
   min-height: 0;
   padding: 10px 0;
   overflow-x: auto;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
 }
 
 .kanban-column {
@@ -106,7 +134,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  min-width: 280px;
+  min-width: 200px;
 }
 
 .column-header {

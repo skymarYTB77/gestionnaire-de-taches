@@ -85,7 +85,7 @@ function Calendar(props) {
             <div key={nanoid()} className="grid grid-cols-7 gap-x-1">
               {week.map((d, dayIndex) => {
                 const currentDate = new Date(date.getFullYear(), date.getMonth(), d);
-                currentDate.setHours(0, 0, 0, 0);
+                currentDate.setHours(12, 0, 0, 0); // Set to noon to avoid timezone issues
 
                 let buttonClasses = "w-8 h-8 text-sm flex items-center justify-center rounded-full transition";
                 

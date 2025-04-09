@@ -80,6 +80,7 @@ function App() {
     setTodoLists,
     activeListId,
     setActiveListId,
+    selectedDate,
   };
 
   const midContainerProps = {

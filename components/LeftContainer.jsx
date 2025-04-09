@@ -1,5 +1,6 @@
 import { nanoid } from 'nanoid';
 import { useRef } from 'react';
+import Toggle from './Toggle';
 
 const initTodoList = () => (
   {
@@ -14,14 +15,27 @@ const initTodoList = () => (
 function LeftContainer(props) {
   const todoListNameRef = useRef(null);
 
+  const activeList = props.todoLists.find(list => list.id === props.activeListId);
+  const filterEnabled = activeList?.filter !== null;
+
+  const handleFilterToggle = (enabled) => {
+    const newTodoLists = props.todoLists.map(todoList => {
+      if (todoList.id === props.activeListId) {
+        return {...todoList, filter: enabled ? props.selectedDate || new Date() : null};
+      }
+      return todoList;
+    });
+    props.setTodoLists(newTodoLists);
+  };
+
   return (
-    <div className="w-48 h-full bg-neutral-800 border-r border-neutral-700">
+    <div className="w-48 h-full bg-neutral-800 border-r border-neutral-700 flex flex-col">
       <div className="mt-4 mb-6 ml-4">
         <h1 className="text-white text-xl font-bold">
           Gestionnaire
         </h1>
       </div>
-      <div className="flex flex-col gap-1">
+      <div className="flex-1 flex flex-col gap-1">
         {
           props.todoLists.map(todoList => {
             return (
@@ -76,6 +90,13 @@ function LeftContainer(props) {
       >
         + Nouvelle Liste
       </button>
+      <div className="p-4 border-t border-neutral-700 mt-4">
+        <Toggle
+          enabled={filterEnabled}
+          setEnabled={handleFilterToggle}
+          label="Filtre par date"
+        />
+      </div>
     </div>
   );
 }

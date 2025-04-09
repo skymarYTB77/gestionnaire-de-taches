@@ -50,17 +50,27 @@ function TodoList(props) {
 
   if (todoList.filter != null) {
     uncheckedTodo = uncheckedTodo.filter(todo => {
-      const dateStart = new Date(todo.dateStart);
-      dateStart.setHours(0, 0, 0, 0);
+      if (!todo.dateStart) return false;
+      
+      const todoDate = new Date(todo.dateStart);
+      todoDate.setHours(12, 0, 0, 0);
+      
+      const filterDate = new Date(todoList.filter);
+      filterDate.setHours(12, 0, 0, 0);
 
-      return dateStart.getTime() === todoList.filter.getTime();
+      return todoDate.getTime() === filterDate.getTime();
     });
 
     checkedTodo = checkedTodo.filter(todo => {
-      const dateStart = new Date(todo.dateStart);
-      dateStart.setHours(0, 0, 0, 0);
+      if (!todo.dateStart) return false;
+      
+      const todoDate = new Date(todo.dateStart);
+      todoDate.setHours(12, 0, 0, 0);
+      
+      const filterDate = new Date(todoList.filter);
+      filterDate.setHours(12, 0, 0, 0);
 
-      return dateStart.getTime() === todoList.filter.getTime();
+      return todoDate.getTime() === filterDate.getTime();
     });
   }
 

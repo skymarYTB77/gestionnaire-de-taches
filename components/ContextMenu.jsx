@@ -1,17 +1,16 @@
 function ContextMenu({ x, y, onClose, options }) {
-  // Ajuster la position pour que le menu ne sorte pas de l'écran
   const adjustPosition = () => {
-    const menuWidth = 200; // Largeur approximative du menu
-    const menuHeight = options.length * 36; // Hauteur approximative du menu
+    const menuWidth = 160;
+    const menuHeight = options.length * 36;
     
-    let adjustedX = x - 10; // Décalage légèrement à gauche
+    let adjustedX = x;
     let adjustedY = y;
     
     if (adjustedX + menuWidth > window.innerWidth) {
-      adjustedX = window.innerWidth - menuWidth;
+      adjustedX = adjustedX - menuWidth;
     }
     
-    if (y + menuHeight > window.innerHeight) {
+    if (adjustedY + menuHeight > window.innerHeight) {
       adjustedY = window.innerHeight - menuHeight;
     }
     
@@ -36,13 +35,13 @@ function ContextMenu({ x, y, onClose, options }) {
         {options.map((option, index) => (
           <button
             key={index}
-            className="w-full px-4 py-2 text-left text-sm text-neutral-300 hover:bg-neutral-700 flex items-center gap-2"
+            className={`w-full px-4 py-2 text-left text-sm text-neutral-300 hover:bg-neutral-700 flex items-center gap-2 ${option.className || ''}`}
             onClick={() => {
               option.onClick();
               onClose();
             }}
           >
-            <span className="text-neutral-400">{option.icon}</span>
+            <span className={`text-neutral-400 ${option.className || ''}`}>{option.icon}</span>
             {option.label}
           </button>
         ))}

@@ -104,9 +104,9 @@ function MidContainer(props) {
   });
 
   const Column = ({ title, todos }) => (
-    <div className="flex-none w-[280px] bg-neutral-800/50 rounded-xl p-4 shadow-lg">
+    <div className="flex-none w-[220px] bg-neutral-800/50 rounded-xl p-4 shadow-lg">
       <h2 className="text-white font-semibold mb-4 px-2">{title}</h2>
-      <div className="h-[calc(100%-2rem)] overflow-y-auto">
+      <div className="max-h-[200px] overflow-y-auto">
         {todos.map(mapTodo)}
         {todos.length === 0 && (
           <div className="text-neutral-400 text-sm text-center mt-4">
@@ -185,7 +185,7 @@ function MidContainer(props) {
           ) : (
             <div 
               ref={scrollContainerRef}
-              className="flex gap-6 h-[calc(100%-2rem)] overflow-x-auto pb-4 cursor-grab"
+              className="grid grid-cols-3 gap-6 auto-rows-min h-[500px] overflow-y-auto p-2"
             >
               <Column title="En vrac" todos={noDateTodos} />
               <Column title="Aujourd'hui" todos={todayTodos} />

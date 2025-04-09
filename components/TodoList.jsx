@@ -16,14 +16,8 @@ function sortWithDate(a, b) {
     return -1;
   }
 
-  let dateStartA = new Date(a.dateStart).getTime()
-  let dateStartB = new Date(b.dateStart).getTime()
-  let dateEndA = new Date(a.dateEnd).getTime()
-  let dateEndB = new Date(b.dateEnd).getTime()
-
-  if (dateStartA === dateStartB) {
-    return dateEndA - dateEndB;
-  }
+  let dateStartA = new Date(a.dateStart).getTime();
+  let dateStartB = new Date(b.dateStart).getTime();
   return dateStartA - dateStartB;
 }
 
@@ -59,26 +53,15 @@ function TodoList(props) {
       const dateStart = new Date(todo.dateStart);
       dateStart.setHours(0, 0, 0, 0);
 
-      const dateEnd = new Date(todo.dateEnd);
-      dateEnd.setHours(0, 0, 0, 0);
-
-      if (todo.dateStart !== "" && todo.dateEnd !== "") {
-        return dateStart.getTime() <= todoList.filter.getTime() &&
-          todoList.filter.getTime() <= dateEnd.getTime();
-      } else if (todo.dateStart !== "" && todo.dateEnd === "") {
-        return dateStart.getTime() === todoList.filter.getTime();
-      }
-
-      return false;
+      return dateStart.getTime() === todoList.filter.getTime();
     });
 
     checkedTodo = checkedTodo.filter(todo => {
       const dateStart = new Date(todo.dateStart);
       dateStart.setHours(0, 0, 0, 0);
 
-      return dateStart.getTime() == todoList.filter.getTime();
+      return dateStart.getTime() === todoList.filter.getTime();
     });
-
   }
 
   return (
@@ -86,7 +69,7 @@ function TodoList(props) {
       { (uncheckedTodo.length === 0 && checkedTodo.length === 0)
         &&
         <div className="text-white pt-10 text-sm">
-          No Data
+          Aucune donnée
         </div>
       }
       { uncheckedTodo.map(props.mapTodo) }

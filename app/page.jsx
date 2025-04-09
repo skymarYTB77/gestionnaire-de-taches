@@ -11,7 +11,6 @@ const initTodo = {
   name: '',
   priority: 'low',
   dateStart: '',
-  dateEnd: '',
   tags: [],
   checked: false
 };
@@ -31,6 +30,7 @@ function App() {
   const [todoLists, setTodoLists] = useState([initTodoList()]);
   const [activeListId, setActiveListId] = useState(todoLists[0].id);
   const [displayedTodo, setDisplayedTodo] = useState(initTodo);
+  const [selectedDate, setSelectedDate] = useState(null);
 
   useEffect(() => {
     if (localStorage) {
@@ -45,6 +45,13 @@ function App() {
   useEffect(() => {
     localStorage.setItem('todoLists', JSON.stringify(todoLists));
   }, [todoLists]);
+
+  useEffect(() => {
+    if (selectedDate) {
+      const formattedDate = selectedDate.toISOString().split('T')[0];
+      setDisplayedTodo(prev => ({...prev, dateStart: formattedDate}));
+    }
+  }, [selectedDate]);
 
   function handleKeyDown(e) {
     if (e.key === 'Escape') {
@@ -88,6 +95,7 @@ function App() {
     todoLists,
     setTodoLists,
     activeListId,
+    setSelectedDate,
   };
 
   return (

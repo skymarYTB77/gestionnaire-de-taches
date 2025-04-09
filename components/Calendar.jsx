@@ -98,9 +98,11 @@ function Calendar(props) {
                 }
 
                 if (currentDate.getTime() === today.getTime()) {
-                  buttonClasses += " bg-yellow text-black ring-2 ring-yellow font-bold";
-                } else if (activeList && new Date(activeList.filter).getTime() === currentDate.getTime()) {
-                  buttonClasses += " bg-yellow text-black";
+                  buttonClasses += " ring-1 ring-[#E0E0E0]/10";
+                }
+
+                if (activeList && activeList.filter && new Date(activeList.filter).getTime() === currentDate.getTime()) {
+                  buttonClasses += " bg-[#2196F3] text-white";
                 } else {
                   buttonClasses += " bg-neutral-800 hover:bg-neutral-700";
                 }
@@ -112,11 +114,12 @@ function Calendar(props) {
                     onClick={() => {
                       const newTodoLists = props.todoLists.map(todoList => {
                         if (todoList.id === props.activeListId) {
-                          return {...todoList, filter: currentDate};
+                          return {...todoList, filter: new Date(currentDate)};
                         }
                         return todoList;
-                      })
+                      });
                       props.setTodoLists(newTodoLists);
+                      props.setSelectedDate(new Date(currentDate));
                     }}
                   >
                     {d}

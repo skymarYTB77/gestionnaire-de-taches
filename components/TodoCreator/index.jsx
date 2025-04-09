@@ -9,7 +9,6 @@ const initTodo = {
   name: '',
   priority: 'low',
   dateStart: '',
-  dateEnd: '',
   tags: [],
   checked: false
 };
@@ -18,20 +17,22 @@ function TodoCreator(props) {
   const [todo, setTodo] = useState(props.displayedTodo);
   const nameRef = useRef(null);
   const dateStartRef = useRef(null);
-  const dateEndRef = useRef(null);
   const tagsRef = useRef(null);
 
   useEffect(() => {
     nameRef.current.focus();
   }, []);
 
+  useEffect(() => {
+    setTodo(props.displayedTodo);
+  }, [props.displayedTodo]);
+
   function handleSubmit() {
-    if (todo.name == '') return;
+    if (todo.name === '') return;
 
     nameRef.current.focus();
     nameRef.current.value = '';
     dateStartRef.current.value = '';
-    dateEndRef.current.value = '';
     tagsRef.current.value = '';
     props.setDisplayedTodo(initTodo);
 
@@ -41,7 +42,7 @@ function TodoCreator(props) {
           return {...todoList, data: [todo, ...todoList.data]};
         }
         return todoList;
-      })
+      });
       props.setTodoLists(newTodoLists);
 
       setTodo(initTodo);
@@ -57,7 +58,7 @@ function TodoCreator(props) {
           return {...todoList, data: newTodoListData};
         }
         return todoList;
-      })
+      });
       props.setTodoLists(newTodoLists);
       props.setCreatorState('hidden');
     }
@@ -87,7 +88,6 @@ function TodoCreator(props) {
             todo={todo}
             setTodo={setTodo}
             dateStartRef={dateStartRef}
-            dateEndRef={dateEndRef}
           />
           <div className="flex flex-col flex-1 gap-6">
             <Priority

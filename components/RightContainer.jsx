@@ -11,18 +11,20 @@ function RightContainer(props) {
         todoLists={props.todoLists}
         setTodoLists={props.setTodoLists}
         activeListId={props.activeListId}
+        setSelectedDate={props.setSelectedDate}
       />
-      <div className="w-full flex justify-around">
+      <div className="w-full flex justify-around mt-2 mb-6">
         <button 
           className="text-white bg-neutral-700 hover:bg-neutral-600 transition rounded-md p-1"
           onClick={() => {
             const newTodoLists = props.todoLists.map(todoList => {
-              if (todoList.id == props.activeListId) {
+              if (todoList.id === props.activeListId) {
                 return {...todoList, filter: null};
               }
               return todoList;
             })
-            props.setTodoLists(newTodoLists)
+            props.setTodoLists(newTodoLists);
+            props.setSelectedDate(null);
           }}
         >
           Effacer le filtre

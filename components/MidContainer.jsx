@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 
 function MidContainer(props) {
   const [showSort, setShowSort] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   let ref = useRef(null);
   const scrollContainerRef = useRef(null);
 
@@ -72,6 +73,21 @@ function MidContainer(props) {
 
   const activeList = props.todoLists.find(list => list.id === props.activeListId);
   const todos = activeList ? activeList.data : [];
+  const sortType = activeList?.sort;
+
+  function sortTodos(todosToSort) {
+    if (!sortType) return todosToSort;
+
+    return [...todosToSort].sort((a, b) => {
+      if (sortType === 'name') {
+        return a.name.localeCompare(b.name);
+      } else if (sortType === 'priority') {
+        const priorityValues = { high: 0, mid: 1, low: 2 };
+        return priorityValues[a.priority] - priorityValues[b.priority];
+      }
+      return 0;
+    });
+  }
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -80,33 +96,61 @@ function MidContainer(props) {
   const endOfWeek = new Date(today);
   endOfWeek.setDate(endOfWeek.getDate() + (6 - today.getDay()));
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const endOfYear = new Date(today.getFullYear(), 11, 31);
 
-  const noDateTodos = todos.filter(todo => !todo.dateStart);
-  const todayTodos = todos.filter(todo => {
+  const noDateTodos = sortTodos(todos.filter(todo => !todo.dateStart));
+  const todayTodos = sortTodos(todos.filter(todo => {
     if (!todo.dateStart) return false;
     const todoDate = new Date(todo.dateStart);
     return todoDate.toDateString() === today.toDateString();
-  });
-  const tomorrowTodos = todos.filter(todo => {
+  }));
+  const tomorrowTodos = sortTodos(todos.filter(todo => {
     if (!todo.dateStart) return false;
     const todoDate = new Date(todo.dateStart);
     return todoDate.toDateString() === tomorrow.toDateString();
-  });
-  const weekTodos = todos.filter(todo => {
+  }));
+  const weekTodos = sortTodos(todos.filter(todo => {
     if (!todo.dateStart) return false;
     const todoDate = new Date(todo.dateStart);
     return todoDate > tomorrow && todoDate <= endOfWeek;
-  });
-  const monthTodos = todos.filter(todo => {
+  }));
+  const monthTodos = sortTodos(todos.filter(todo => {
     if (!todo.dateStart) return false;
     const todoDate = new Date(todo.dateStart);
     return todoDate > endOfWeek && todoDate <= endOfMonth;
-  });
+  }));
+  const yearTodos = sortTodos(todos.filter(todo => {
+    if (!todo.dateStart) return false;
+    const todoDate = new Date(todo.dateStart);
+    return todoDate > endOfMonth && todoDate <= endOfYear;
+  }));
 
-  const Column = ({ title, todos }) => (
-    <div className="flex-none w-[220px] bg-neutral-800/50 rounded-xl p-4 shadow-lg">
-      <h2 className="text-white font-semibold mb-4 px-2">{title}</h2>
-      <div className="max-h-[200px] overflow-y-auto">
+  const allTodos = sortTodos(todos.filter(todo => !todo.checked));
+  const completedTodos = sortTodos(todos.filter(todo => todo.checked));
+
+  const columns = [
+    { title: "En vrac", todos: noDateTodos, icon: "📝", color: "bg-blue-500" },
+    { title: "Aujourd'hui", todos: todayTodos, icon: "⭐", color: "bg-amber-500" },
+    { title: "Demain", todos: tomorrowTodos, icon: "🌅", color: "bg-orange-500" },
+    { title: "Cette semaine", todos: weekTodos, icon: "📅", color: "bg-green-500" },
+    { title: "Ce mois-ci", todos: monthTodos, icon: "📆", color: "bg-purple-500" },
+    { title: "Cette année", todos: yearTodos, icon: "🗓️", color: "bg-pink-500" }
+  ];
+
+  const Column = ({ title, todos, icon, color }) => (
+    <details className="flex-none w-[220px] bg-neutral-800/50 rounded-xl p-4 shadow-lg group">
+      <summary className="cursor-pointer list-none">
+        <div className={`flex items-center gap-2 mb-2`}>
+          <span className={`w-8 h-8 ${color} rounded-full flex items-center justify-center`}>
+            {icon}
+          </span>
+          <h2 className="text-white font-semibold">{title}</h2>
+          <span className="ml-auto text-neutral-400 text-sm">
+            {todos.length}
+          </span>
+        </div>
+      </summary>
+      <div className="pt-2 max-h-[200px] overflow-y-auto">
         {todos.map(mapTodo)}
         {todos.length === 0 && (
           <div className="text-neutral-400 text-sm text-center mt-4">
@@ -114,7 +158,31 @@ function MidContainer(props) {
           </div>
         )}
       </div>
-    </div>
+    </details>
+  );
+
+  const WideColumn = ({ title, todos, icon, color }) => (
+    <details open className="flex-1 bg-neutral-800/50 rounded-xl p-4 shadow-lg">
+      <summary className="cursor-pointer list-none">
+        <div className={`flex items-center gap-2 mb-2`}>
+          <span className={`w-8 h-8 ${color} rounded-full flex items-center justify-center`}>
+            {icon}
+          </span>
+          <h2 className="text-white font-semibold">{title}</h2>
+          <span className="ml-auto text-neutral-400 text-sm">
+            {todos.length}
+          </span>
+        </div>
+      </summary>
+      <div className="pt-2 max-h-[300px] overflow-y-auto">
+        {todos.map(mapTodo)}
+        {todos.length === 0 && (
+          <div className="text-neutral-400 text-sm text-center mt-4">
+            Aucune tâche
+          </div>
+        )}
+      </div>
+    </details>
   );
 
   return (
@@ -144,25 +212,11 @@ function MidContainer(props) {
                 className="absolute w-24 p-2 flex flex-col gap-1 items-start rounded-sm bg-neutral-700 top-9 z-10"
               >
                 <SortButton
-                  name="Aucun"
-                  todoLists={props.todoLists}
-                  setTodoLists={props.setTodoLists}
-                  activeListId={props.activeListId}
-                  value={null}
-                />
-                <SortButton
                   name="Nom"
                   todoLists={props.todoLists}
                   setTodoLists={props.setTodoLists}
                   activeListId={props.activeListId}
                   value={'name'}
-                />
-                <SortButton
-                  name="Date"
-                  todoLists={props.todoLists}
-                  setTodoLists={props.setTodoLists}
-                  activeListId={props.activeListId}
-                  value={'date'}
                 />
                 <SortButton
                   name="Priorité"
@@ -175,7 +229,7 @@ function MidContainer(props) {
             }
           </div>
         </div>
-        <div className="flex-1 overflow-hidden p-4">
+        <div className="flex-1 overflow-hidden">
           {props.showCalendar ? (
             <TodoList
               todoLists={props.todoLists}
@@ -183,15 +237,38 @@ function MidContainer(props) {
               mapTodo={mapTodo}
             />
           ) : (
-            <div 
-              ref={scrollContainerRef}
-              className="grid grid-cols-3 gap-6 auto-rows-min h-[500px] overflow-y-auto p-2"
-            >
-              <Column title="En vrac" todos={noDateTodos} />
-              <Column title="Aujourd'hui" todos={todayTodos} />
-              <Column title="Demain" todos={tomorrowTodos} />
-              <Column title="Cette semaine" todos={weekTodos} />
-              <Column title="Ce mois-ci" todos={monthTodos} />
+            <div className="flex flex-col h-full">
+              <div 
+                ref={scrollContainerRef}
+                className="p-4 grid grid-cols-3 gap-6 auto-rows-min bg-neutral-900/30"
+              >
+                {columns.map((column, index) => (
+                  <Column 
+                    key={index}
+                    title={column.title}
+                    todos={column.todos}
+                    icon={column.icon}
+                    color={column.color}
+                  />
+                ))}
+              </div>
+              <div className="h-px bg-neutral-700 mx-4" />
+              <div className="flex-1 p-4">
+                <div className="grid grid-cols-2 gap-6">
+                  <WideColumn
+                    title="Tous"
+                    todos={allTodos}
+                    icon="📋"
+                    color="bg-indigo-500"
+                  />
+                  <WideColumn
+                    title="Terminées"
+                    todos={completedTodos}
+                    icon="✅"
+                    color="bg-emerald-500"
+                  />
+                </div>
+              </div>
             </div>
           )}
         </div>

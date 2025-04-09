@@ -4,10 +4,10 @@ function ContextMenu({ x, y, onClose, options }) {
     const menuWidth = 200; // Largeur approximative du menu
     const menuHeight = options.length * 36; // Hauteur approximative du menu
     
-    let adjustedX = x;
+    let adjustedX = x - 10; // Décalage légèrement à gauche
     let adjustedY = y;
     
-    if (x + menuWidth > window.innerWidth) {
+    if (adjustedX + menuWidth > window.innerWidth) {
       adjustedX = window.innerWidth - menuWidth;
     }
     

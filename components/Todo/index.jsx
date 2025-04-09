@@ -3,14 +3,30 @@ import Date from './Date';
 import Tags from './Tags';
 
 function Todo(props) {
+  const handleClick = () => {
+    if (props.todo.dateStart) {
+      // Mettre à jour le filtre de la liste active avec la date de la tâche
+      const newTodoLists = props.todoLists.map(todoList => {
+        if (todoList.id === props.activeListId) {
+          return {
+            ...todoList,
+            filter: new Date(props.todo.dateStart)
+          };
+        }
+        return todoList;
+      });
+      props.setTodoLists(newTodoLists);
+    }
+
+    props.setCreatorState('edit');
+    props.setDisplayedTodo(props.todo);
+  };
+
   return (
     <div
       className="w-full px-3 py-2 mb-2 rounded-lg bg-neutral-800 text-white relative
       flex items-center gap-3 cursor-pointer group hover:bg-neutral-700/50 transition-colors"
-      onClick={() => {
-        props.setCreatorState('edit');
-        props.setDisplayedTodo(props.todo);
-      }}
+      onClick={handleClick}
     >
       <button
         className="absolute right-3 top-2

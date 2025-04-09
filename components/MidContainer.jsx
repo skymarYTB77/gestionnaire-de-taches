@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 function MidContainer(props) {
   const [showSort, setShowSort] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   let ref = useRef(null);
   const scrollContainerRef = useRef(null);
 
@@ -57,6 +58,9 @@ function MidContainer(props) {
   }, []);
 
   function mapTodo(todo) {
+    if (searchTerm && !todo.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+      return null;
+    }
     return (
       <Todo
         todo={todo}
@@ -188,7 +192,7 @@ function MidContainer(props) {
   return (
     <div className="flex-1 h-full">
       <div className="flex flex-col h-full">
-        <div className="p-4 flex gap-3">
+        <div className="p-4 flex gap-3 items-center">
           <button
             className="h-9 rounded-md px-4 py-2
             text-neutral-300 bg-neutral-900 hover:bg-neutral-800 transition-all"
@@ -198,8 +202,17 @@ function MidContainer(props) {
           >
             + Ajouter une tâche
           </button>
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Rechercher une tâche..."
+              className="w-full h-9 px-4 rounded-md bg-neutral-900 text-neutral-300 placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-amber-200"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
           <div
-            className="h-9 rounded-md px-4 py-2 relative ml-auto cursor-pointer
+            className="h-9 rounded-md px-4 py-2 relative cursor-pointer
             text-neutral-300 bg-neutral-900 hover:bg-neutral-800 transition-all"
             onClick={() => {
               setShowSort(true);

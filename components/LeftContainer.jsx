@@ -2,8 +2,8 @@ import { useRef, useState } from 'react';
 import { nanoid } from 'nanoid';
 import Toggle from './Toggle';
 import ContextMenu from './ContextMenu';
-import { auth } from '../lib/firebase';
-import { getFirestore, doc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { auth, db } from '../lib/firebase';
+import { getFirestore, doc, setDoc, collection, query, where, getDocs, updateDoc, arrayUnion } from 'firebase/firestore';
 
 const initTodoList = () => ({
   id: nanoid(),
@@ -42,7 +42,7 @@ function LeftContainer(props) {
         return;
       }
 
-      const db = getFirestore();
+      // Find target user
       const usersRef = collection(db, 'users');
       const q = query(usersRef, where('email', '==', shareEmail));
       const querySnapshot = await getDocs(q);
@@ -53,14 +53,28 @@ function LeftContainer(props) {
       }
 
       const targetUser = querySnapshot.docs[0];
-      const sharedListRef = doc(db, `users/${targetUser.id}/sharedLists/${todoList.id}`);
-      
-      await setDoc(sharedListRef, {
+      const targetUserRef = doc(db, 'users', targetUser.id);
+
+      // Get current target user's todoLists
+      const targetUserDoc = await getDocs(targetUserRef);
+      let targetTodoLists = targetUserDoc.exists() ? targetUserDoc.data().todoLists : [];
+
+      // Add the shared list to target user's todoLists
+      const sharedList = {
         ...todoList,
+        id: nanoid(), // Generate new ID to avoid conflicts
         sharedBy: auth.currentUser.email,
         sharedAt: new Date().toISOString()
+      };
+
+      targetTodoLists = [...(targetTodoLists || []), sharedList];
+
+      // Update target user's document with new todoLists
+      await updateDoc(targetUserRef, {
+        todoLists: targetTodoLists
       });
 
+      // Update current user's list to mark it as shared
       const newTodoLists = props.todoLists.map(list => {
         if (list.id === todoList.id) {
           return {

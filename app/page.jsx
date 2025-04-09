@@ -9,6 +9,8 @@ import Settings from '../components/Settings';
 import { nanoid } from 'nanoid';
 import { useAuth } from '../contexts/AuthContext';
 import { auth } from '../lib/firebase';
+import { db } from '../lib/firebase';
+import { doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore';
 import { signInWithCustomToken } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 
@@ -63,22 +65,46 @@ function App() {
     }
   }, [user, loading, router]);
 
+  // Load data from Firestore
   useEffect(() => {
-    if (user && localStorage) {
-      const key = `todoLists_${user.uid}`;
-      const savedTodoLists = JSON.parse(localStorage.getItem(key));
-      if (savedTodoLists) {
-        setTodoLists(savedTodoLists);
-        setActiveListId(savedTodoLists[0].id);
+    if (!user) return;
+
+    const userDocRef = doc(db, 'users', user.uid);
+    
+    // Set up real-time listener
+    const unsubscribe = onSnapshot(userDocRef, (doc) => {
+      if (doc.exists()) {
+        const userData = doc.data();
+        if (userData.todoLists) {
+          setTodoLists(userData.todoLists);
+          setActiveListId(userData.todoLists[0].id);
+        }
+      } else {
+        // If no Firestore data exists, initialize with default list
+        setTodoLists([initTodoList()]);
+        setActiveListId(todoLists[0].id);
       }
-    }
+    }, (error) => {
+      console.error("Error loading data from Firestore:", error);
+    });
+
+    return () => unsubscribe();
   }, [user]);
 
+  // Save data to Firestore
   useEffect(() => {
-    if (user) {
-      const key = `todoLists_${user.uid}`;
-      localStorage.setItem(key, JSON.stringify(todoLists));
-    }
+    if (!user) return;
+
+    const saveToFirestore = async () => {
+      try {
+        const userDocRef = doc(db, 'users', user.uid);
+        await setDoc(userDocRef, { todoLists }, { merge: true });
+      } catch (error) {
+        console.error("Error saving to Firestore:", error);
+      }
+    };
+
+    saveToFirestore();
   }, [todoLists, user]);
 
   useEffect(() => {

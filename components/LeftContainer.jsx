@@ -2,6 +2,8 @@ import { useRef, useState } from 'react';
 import { nanoid } from 'nanoid';
 import Toggle from './Toggle';
 import ContextMenu from './ContextMenu';
+import { auth } from '../lib/firebase';
+import { getFirestore, doc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 
 const initTodoList = () => ({
   id: nanoid(),
@@ -9,13 +11,16 @@ const initTodoList = () => ({
   data: [],
   sort: null,
   filter: null,
-  backgroundColor: 'amber-200'
+  backgroundColor: 'amber-200',
+  shared: []
 });
 
 function LeftContainer(props) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
-  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareEmail, setShareEmail] = useState('');
+  const [shareError, setShareError] = useState('');
   const todoListNameRef = useRef(null);
   const activeList = props.todoLists.find(list => list.id === props.activeListId);
   const filterEnabled = activeList?.filter !== null;
@@ -30,13 +35,51 @@ function LeftContainer(props) {
     props.setTodoLists(newTodoLists);
   };
 
-  const colors = [
-    { name: 'Ambre', value: 'amber-200' },
-    { name: 'Bleu', value: 'blue-200' },
-    { name: 'Vert', value: 'green-200' },
-    { name: 'Rose', value: 'pink-200' },
-    { name: 'Violet', value: 'purple-200' },
-  ];
+  const handleShare = async (todoList) => {
+    try {
+      if (!shareEmail) {
+        setShareError('Veuillez entrer une adresse email');
+        return;
+      }
+
+      const db = getFirestore();
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('email', '==', shareEmail));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        setShareError('Utilisateur non trouvé');
+        return;
+      }
+
+      const targetUser = querySnapshot.docs[0];
+      const sharedListRef = doc(db, `users/${targetUser.id}/sharedLists/${todoList.id}`);
+      
+      await setDoc(sharedListRef, {
+        ...todoList,
+        sharedBy: auth.currentUser.email,
+        sharedAt: new Date().toISOString()
+      });
+
+      const newTodoLists = props.todoLists.map(list => {
+        if (list.id === todoList.id) {
+          return {
+            ...list,
+            shared: [...(list.shared || []), shareEmail]
+          };
+        }
+        return list;
+      });
+      props.setTodoLists(newTodoLists);
+
+      setShareEmail('');
+      setShowShareModal(false);
+      alert('Liste partagée avec succès !');
+    } catch (error) {
+      console.error('Erreur lors du partage:', error);
+      setShareError('Erreur lors du partage de la liste');
+    }
+  };
 
   return (
     <div className={`${isCollapsed ? 'w-12' : 'w-48'} h-full bg-neutral-800 border-r border-neutral-700 flex flex-col left-sidebar transition-all duration-300 relative`}>
@@ -67,7 +110,10 @@ function LeftContainer(props) {
                 activeListId={props.activeListId}
                 showDeleteConfirm={showDeleteConfirm}
                 setShowDeleteConfirm={setShowDeleteConfirm}
-                colors={colors}
+                onShare={() => {
+                  setShowShareModal(true);
+                  handleShare(todoList);
+                }}
               />
             ))}
           </div>
@@ -90,11 +136,47 @@ function LeftContainer(props) {
           </div>
         </>
       )}
+
+      {showShareModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-neutral-800 p-6 rounded-lg shadow-xl w-96">
+            <h3 className="text-white text-lg mb-4">Partager la liste</h3>
+            {shareError && (
+              <div className="mb-4 text-red-500 text-sm">{shareError}</div>
+            )}
+            <input
+              type="email"
+              placeholder="Email de l'utilisateur"
+              value={shareEmail}
+              onChange={(e) => setShareEmail(e.target.value)}
+              className="w-full px-3 py-2 bg-neutral-700 rounded-md text-white mb-4"
+            />
+            <div className="flex justify-end gap-4">
+              <button
+                className="px-4 py-2 text-neutral-300 hover:text-white"
+                onClick={() => {
+                  setShowShareModal(false);
+                  setShareEmail('');
+                  setShareError('');
+                }}
+              >
+                Annuler
+              </button>
+              <button
+                className="px-4 py-2 bg-amber-200 text-black rounded hover:bg-amber-300"
+                onClick={() => handleShare(activeList)}
+              >
+                Partager
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function TodoListItem({ todoList, isActive, todoListNameRef, setActiveListId, setTodoLists, activeListId, showDeleteConfirm, setShowDeleteConfirm, colors }) {
+function TodoListItem({ todoList, isActive, todoListNameRef, setActiveListId, setTodoLists, activeListId, showDeleteConfirm, setShowDeleteConfirm, onShare }) {
   const [contextMenu, setContextMenu] = useState(null);
   const inputRef = useRef(null);
 
@@ -108,33 +190,7 @@ function TodoListItem({ todoList, isActive, todoListNameRef, setActiveListId, se
         {
           label: 'Partager',
           icon: '↗️',
-          onClick: () => {
-            console.log('Partager', todoList);
-          }
-        },
-        {
-          label: 'Fond',
-          icon: '🎨',
-          onClick: () => {
-            setContextMenu({
-              x: buttonClick ? rect.right : e.clientX,
-              y: buttonClick ? rect.top : e.clientY,
-              options: colors.map(color => ({
-                label: color.name,
-                icon: '⬤',
-                className: `text-${color.value}`,
-                onClick: () => {
-                  setTodoLists(prevLists => 
-                    prevLists.map(list =>
-                      list.id === todoList.id
-                        ? { ...list, backgroundColor: color.value }
-                        : list
-                    )
-                  );
-                }
-              }))
-            });
-          }
+          onClick: onShare
         },
         {
           label: 'Renommer',

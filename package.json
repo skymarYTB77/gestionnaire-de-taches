@@ -10,8 +10,6 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "firebase": "^10.7.1",
-    "@google-cloud/calendar": "^5.0.0",
-    "@microsoft/microsoft-graph-client": "^3.0.7",
     "googleapis": "^129.0.0"
   },
   "devDependencies": {

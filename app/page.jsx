@@ -101,7 +101,7 @@ function App() {
       setCreatorState('hidden');
       setDisplayedTodo(initTodo);
     }
-  };
+  }
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);

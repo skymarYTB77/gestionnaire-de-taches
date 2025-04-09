@@ -34,7 +34,6 @@ function TodoCreator(props) {
     nameRef.current.value = '';
     dateStartRef.current.value = '';
     tagsRef.current.value = '';
-    props.setDisplayedTodo(initTodo);
 
     if (props.creatorState === 'add') {
       const newTodoLists = props.todoLists.map(todoList => {
@@ -45,7 +44,15 @@ function TodoCreator(props) {
       });
       props.setTodoLists(newTodoLists);
 
-      setTodo(initTodo);
+      // Garder la date si le filtre est actif
+      const activeList = props.todoLists.find(list => list.id === props.activeListId);
+      if (activeList?.filter) {
+        setTodo({...initTodo, dateStart: todo.dateStart});
+        props.setDisplayedTodo({...initTodo, dateStart: todo.dateStart});
+      } else {
+        setTodo(initTodo);
+        props.setDisplayedTodo(initTodo);
+      }
     } else if (props.creatorState === 'edit') {
       const newTodoLists = props.todoLists.map(todoList => {
         if (todoList.id === props.activeListId) {
@@ -61,6 +68,7 @@ function TodoCreator(props) {
       });
       props.setTodoLists(newTodoLists);
       props.setCreatorState('hidden');
+      props.setDisplayedTodo(initTodo);
     }
   }
 

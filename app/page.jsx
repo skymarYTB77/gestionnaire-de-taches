@@ -31,6 +31,7 @@ function App() {
   const [activeListId, setActiveListId] = useState(todoLists[0].id);
   const [displayedTodo, setDisplayedTodo] = useState(initTodo);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [lastSelectedDate, setLastSelectedDate] = useState(null);
 
   useEffect(() => {
     if (localStorage) {
@@ -50,8 +51,16 @@ function App() {
     if (selectedDate) {
       const formattedDate = selectedDate.toISOString().split('T')[0];
       setDisplayedTodo(prev => ({...prev, dateStart: formattedDate}));
+      setLastSelectedDate(selectedDate);
     }
   }, [selectedDate]);
+
+  useEffect(() => {
+    if (creatorState === 'add' && lastSelectedDate && todoLists.find(list => list.id === activeListId)?.filter) {
+      const formattedDate = lastSelectedDate.toISOString().split('T')[0];
+      setDisplayedTodo(prev => ({...prev, dateStart: formattedDate}));
+    }
+  }, [creatorState]);
 
   function handleKeyDown(e) {
     if (e.key === 'Escape') {
@@ -99,13 +108,16 @@ function App() {
     setSelectedDate,
   };
 
+  const activeList = todoLists.find(list => list.id === activeListId);
+  const showCalendar = activeList?.filter !== null;
+
   return (
     <div className="font-sans w-screen h-screen flex items-center justify-center bg-neutral-900/80">
       <div className="w-[900px] h-[600px] bg-neutral-900 rounded-xl shadow-2xl flex overflow-hidden">
         {creatorState!=='hidden' && <TodoCreator {...todoCreatorProps} />}
         <LeftContainer {...leftContainerProps} />
-        <MidContainer {...midContainerProps} />
-        <RightContainer {...rightContainerProps} />
+        <MidContainer {...midContainerProps} showCalendar={showCalendar} />
+        {showCalendar && <RightContainer {...rightContainerProps} />}
       </div>
     </div>
   );

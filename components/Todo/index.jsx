@@ -5,8 +5,8 @@ import Tags from './Tags';
 function Todo(props) {
   return (
     <div
-      className="w-full h-16 px-3 rounded-lg bg-neutral-800 text-white relative
-      flex items-center gap-3 cursor-pointer group mb-2"
+      className="w-full px-3 py-2 mb-2 rounded-lg bg-neutral-800 text-white relative
+      flex items-center gap-3 cursor-pointer group hover:bg-neutral-700/50 transition-colors"
       onClick={() => {
         props.setCreatorState('edit');
         props.setDisplayedTodo(props.todo);
@@ -38,7 +38,7 @@ function Todo(props) {
         checked={props.todo.checked}
         priority={props.todo.priority}
       />
-      <div className="flex flex-col h-full w-full justify-center">
+      <div className="flex flex-col w-full justify-center py-1">
         <div className={`text-sm ${props.todo.checked && 'line-through'}`}>
           {props.todo.name}
         </div>

@@ -34,45 +34,55 @@ function LeftContainer(props) {
         <h1 className="text-white text-xl font-bold">
           Gestionnaire
         </h1>
+        <p className="text-neutral-400 text-sm">de tâches</p>
       </div>
       <div className="flex-1 flex flex-col gap-1">
         {
-          props.todoLists.map(todoList => {
+          props.todoLists.map((todoList) => {
+            const isActive = todoList.id === props.activeListId;
             return (
               <div
                 className={`w-40 mx-auto px-2 py-2 rounded-md flex justify-between
-                font-semibold transition cursor-pointer group bg-neutral-800
-                ${todoList.id===props.activeListId ? 'bg-yellow text-neutral-900' : 'text-white'}`}
+                font-semibold transition cursor-pointer group
+                ${isActive ? 'bg-yellow text-neutral-900' : 'bg-neutral-700/50 text-neutral-400'}`}
                 key={todoList.id}
                 onClick={() => {
                   props.setActiveListId(todoList.id);
                 }}
               >
                 <input
-                  ref={todoList.id === props.activeListId ? todoListNameRef : null}
+                  ref={isActive ? todoListNameRef : null}
                   type="text"
                   defaultValue={todoList.name}
                   className={`w-32 bg-transparent outline-none cursor-pointer focus:cursor-text
-                ${todoList.id===props.activeListId ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                    ${isActive ? 'text-neutral-900' : 'text-neutral-400'}
+                    ${isActive ? 'pointer-events-auto' : 'pointer-events-none'}`}
                   onChange={() => {
-                    const newTodoLists = props.todoLists.map(todoList => {
-                      if (todoList.id === props.activeListId) {
-                        return {...todoList, name: todoListNameRef.current.value};
-                      }
-                      return todoList;
-                    });
-
-                    props.setTodoLists(newTodoLists);
+                    const newTodoLists = [...props.todoLists];
+                    const index = newTodoLists.findIndex(list => list.id === props.activeListId);
+                    if (index !== -1) {
+                      newTodoLists[index] = {
+                        ...newTodoLists[index],
+                        name: todoListNameRef.current.value
+                      };
+                      props.setTodoLists(newTodoLists);
+                    }
                   }}
                 />
                 <button
-                  className={`text-neutral-900 invisible ${todoList.id===props.activeListId && 'group-hover:visible'}`}
+                  className={`text-neutral-900 invisible ${isActive && 'group-hover:visible'}`}
                   onClick={(e) => {
-                    const newTodoLists = props.todoLists.filter(todoList => todoList.id!==props.activeListId);
-                    props.setActiveListId(newTodoLists[0].id);
-                    props.setTodoLists(newTodoLists);
-
                     e.stopPropagation();
+                    const newTodoLists = props.todoLists.filter(list => list.id !== props.activeListId);
+                    
+                    if (newTodoLists.length === 0) {
+                      const newList = initTodoList();
+                      props.setTodoLists([newList]);
+                      props.setActiveListId(newList.id);
+                    } else {
+                      props.setActiveListId(newTodoLists[0].id);
+                      props.setTodoLists(newTodoLists);
+                    }
                   }}
                 >
                   ✕

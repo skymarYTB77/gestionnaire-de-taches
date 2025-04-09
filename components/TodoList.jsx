@@ -76,12 +76,6 @@ function TodoList(props) {
 
   return (
     <>
-      { (uncheckedTodo.length === 0 && checkedTodo.length === 0)
-        &&
-        <div className="text-white pt-10 text-sm">
-          Aucune donnée
-        </div>
-      }
       { uncheckedTodo.map(props.mapTodo) }
       { checkedTodo.map(props.mapTodo) }
     </>

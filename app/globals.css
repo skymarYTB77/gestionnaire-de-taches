@@ -3,22 +3,64 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Styles de scrollbar personnalisés */
+:root {
+  --primary-gradient: linear-gradient(135deg, #2193b0, #6dd5ed);
+  --save-gradient: linear-gradient(135deg, #667eea, #764ba2);
+  --accept-gradient: linear-gradient(135deg, #00b09b, #96c93d);
+  --delete-gradient: linear-gradient(135deg, #ff0844, #ffb199);
+  --export-gradient: linear-gradient(135deg, #00f260, #0575e6);
+  --reject-gradient: linear-gradient(135deg, #ff416c, #ff4b2b);
+  --dark-bg: #171923;
+  --card-bg: rgba(23, 25, 35, 0.95);
+  --glass-bg: rgba(255, 255, 255, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.2);
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.glass-effect {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(10px);
+}
+
+.neon-shadow {
+  box-shadow: 0 0 15px rgba(107, 213, 237, 0.3);
+}
+
+.neon-border {
+  border: 2px solid #6dd5ed;
+  box-shadow: 
+    0 0 20px rgba(109, 213, 237, 0.5),
+    0 0 40px rgba(102, 126, 234, 0.3),
+    0 0 60px rgba(118, 75, 162, 0.2);
+}
+
+.gradient-animate {
+  animation: gradientBG 8s ease infinite;
+  background-size: 300% 300%;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #262626;
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #404040;
+  background: var(--primary-gradient);
   border-radius: 4px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #525252;
+  background: var(--save-gradient);
 }

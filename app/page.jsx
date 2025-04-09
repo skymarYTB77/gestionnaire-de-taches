@@ -112,8 +112,8 @@ function App() {
   const showCalendar = activeList?.filter !== null;
 
   return (
-    <div className="font-sans w-screen h-screen flex items-center justify-center bg-neutral-900/80">
-      <div className="w-[900px] h-[600px] bg-neutral-900 rounded-xl shadow-2xl flex overflow-hidden">
+    <div className="font-sans w-screen h-screen flex items-center justify-center bg-dark-bg">
+      <div className="w-[900px] h-[600px] glass-effect rounded-xl neon-shadow flex overflow-hidden">
         {creatorState!=='hidden' && <TodoCreator {...todoCreatorProps} />}
         <LeftContainer {...leftContainerProps} />
         <MidContainer {...midContainerProps} showCalendar={showCalendar} />

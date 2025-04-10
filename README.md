@@ -1,33 +1,62 @@
-<h1 align="center">Fastodo</h1>
+# Gestionnaire de Tâches
 
-<p align="center">
-A fast and flexible web-based todo list app. No account required.
-<br>
-<a href="https://m4xshen.me/fastodo"><strong>Homepage</strong></a>
-·
-<a href="https://m4xshen.me/fastodo/app"><strong>App</strong></a>
-</p>
+Une application web moderne et intuitive pour la gestion de vos tâches quotidiennes, développée avec Next.js et Firebase.
 
-<img style="border-radius:10px;" src="https://user-images.githubusercontent.com/74842863/235357485-e41bebb8-ca1f-424b-945d-751200295d07.png">
+## Fonctionnalités
 
-## Features
+### 📝 Gestion des Tâches
+- Création de tâches avec titre, date, priorité et étiquettes
+- Organisation en listes personnalisables
+- Marquage des tâches comme terminées
+- Système de priorités (haute, moyenne, basse)
 
-### 🏷️ Todo Properties
+### 📅 Vue Calendrier
+- Visualisation des tâches par date
+- Navigation facile entre les jours
+- Filtrage des tâches par date
+- Vue mensuelle interactive
 
-Create todo with 4 properties: Name, Date, Priority and Tag. Press Enter to add it to list. Click the circle to mark it as done.
+### 🏷️ Organisation
+- Création de listes multiples
+- Étiquettes personnalisables
+- Tri par nom, date ou priorité
+- Filtres intelligents
 
-### 🗂️ Multiple Lists
+### 🔄 Synchronisation
+- Sauvegarde automatique
+- Synchronisation avec Google Calendar
+- Partage de listes entre utilisateurs
+- Accès depuis n'importe quel appareil
 
-Create multiple lists for different purposes: daily todo list, long-term goal list or even project feature list.
+### 🔐 Sécurité
+- Authentification utilisateur
+- Protection des données personnelles
+- Gestion des accès partagés
+- Sauvegarde sécurisée
 
-### 🗓️ Calendar View
+## Technologies Utilisées
 
-View your todos with calendar. The date with todos is highlighted. Click on each date to only show the todos on that day.
+- **Frontend**: Next.js, React, TailwindCSS
+- **Backend**: Firebase (Authentication, Firestore)
+- **Intégrations**: Google Calendar API
+- **Déploiement**: Vercel
 
-### 🗃️ Sorter
+## Pour Commencer
 
-Sort your todos with the 4 properties. You can also use it under calendar view.
+1. Créez un compte ou connectez-vous
+2. Créez votre première liste de tâches
+3. Ajoutez des tâches avec leurs propriétés
+4. Organisez et gérez vos tâches facilement
 
-### 💾 Local Data Saving
+## Fonctionnalités à Venir
 
-Your data will be stored on your device locally and not persisted in any database.
+- Intégration avec Microsoft Todo
+- Intégration avec Apple Reminders
+- Mode hors ligne
+- Applications mobiles natives
+- Rappels par email
+- Statistiques et analyses
+
+## Support
+
+Pour toute question ou assistance, n'hésitez pas à nous contacter via l'interface de l'application.

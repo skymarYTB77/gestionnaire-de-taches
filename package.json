@@ -1,4 +1,5 @@
 {
+    "name": "gestionnaire-de-taches",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

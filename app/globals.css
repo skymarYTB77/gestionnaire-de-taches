@@ -16,6 +16,14 @@
   --glass-border: rgba(255, 255, 255, 0.2);
 }
 
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
 @keyframes gradientBG {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -63,4 +71,12 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--save-gradient);
+}
+
+@media (max-width: 768px) {
+  .left-sidebar {
+    position: absolute;
+    height: 100%;
+    z-index: 30;
+  }
 }

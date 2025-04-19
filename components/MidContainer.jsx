@@ -193,9 +193,16 @@ function MidContainer(props) {
     <div className="flex-1 h-full">
       <div className="flex flex-col h-full">
         <div className="p-4 flex gap-3 items-center">
+          {props.isMobile && !props.showLeftSidebar && (
+            <button
+              onClick={() => props.setShowLeftSidebar(true)}
+              className="w-8 h-8 flex items-center justify-center text-white"
+            >
+              ☰
+            </button>
+          )}
           <button
-            className="h-9 rounded-md px-4 py-2
-            text-neutral-300 bg-neutral-900 hover:bg-neutral-800 transition-all"
+            className="h-9 rounded-md px-4 py-2 text-neutral-300 bg-neutral-900 hover:bg-neutral-800 transition-all"
             onClick={() => {
               props.setCreatorState('add');
             }}

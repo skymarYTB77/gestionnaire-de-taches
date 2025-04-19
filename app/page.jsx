@@ -11,7 +11,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { auth } from '../lib/firebase';
 import { db } from '../lib/firebase';
 import { doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore';
-import { signInWithCustomToken } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 
 const initTodo = {
@@ -22,16 +21,14 @@ const initTodo = {
   checked: false
 };
 
-const initTodoList = () => (
-  {
-    id: nanoid(),
-    name: 'Nouvelle Liste',
-    data: [],
-    sort: null,
-    filter: null,
-    backgroundColor: 'amber-200'
-  }
-);
+const initTodoList = () => ({
+  id: nanoid(),
+  name: 'Nouvelle Liste',
+  data: [],
+  sort: null,
+  filter: null,
+  backgroundColor: 'amber-200'
+});
 
 function App() {
   const [creatorState, setCreatorState] = useState('hidden');
@@ -41,22 +38,24 @@ function App() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [lastSelectedDate, setLastSelectedDate] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showLeftSidebar, setShowLeftSidebar] = useState(true);
   const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    const handleMessage = async (event) => {
-      if (event.data.type === 'FIREBASE_TOKEN') {
-        try {
-          await signInWithCustomToken(auth, event.data.token);
-        } catch (error) {
-          console.error('Erreur d\'authentification:', error);
-        }
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth < 768) {
+        setShowLeftSidebar(false);
+      } else {
+        setShowLeftSidebar(true);
       }
     };
 
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
@@ -65,13 +64,11 @@ function App() {
     }
   }, [user, loading, router]);
 
-  // Load data from Firestore
   useEffect(() => {
     if (!user) return;
 
     const userDocRef = doc(db, 'users', user.uid);
     
-    // Set up real-time listener
     const unsubscribe = onSnapshot(userDocRef, (doc) => {
       if (doc.exists()) {
         const userData = doc.data();
@@ -80,7 +77,6 @@ function App() {
           setActiveListId(userData.todoLists[0].id);
         }
       } else {
-        // If no Firestore data exists, initialize with default list
         setTodoLists([initTodoList()]);
         setActiveListId(todoLists[0].id);
       }
@@ -91,7 +87,6 @@ function App() {
     return () => unsubscribe();
   }, [user]);
 
-  // Save data to Firestore
   useEffect(() => {
     if (!user) return;
 
@@ -150,6 +145,9 @@ function App() {
     activeListId,
     setActiveListId,
     selectedDate,
+    isMobile,
+    showLeftSidebar,
+    setShowLeftSidebar,
   };
 
   const midContainerProps = {
@@ -158,7 +156,10 @@ function App() {
     creatorState,
     setCreatorState,
     setDisplayedTodo,
-    activeListId
+    activeListId,
+    isMobile,
+    showLeftSidebar,
+    setShowLeftSidebar,
   };
 
   const rightContainerProps = {
@@ -169,19 +170,19 @@ function App() {
   };
 
   const activeList = todoLists.find(list => list.id === activeListId);
-  const showCalendar = activeList?.filter !== null;
+  const showCalendar = activeList?.filter !== null && !isMobile;
 
   if (loading || !user) {
     return (
-      <div className="font-sans w-screen h-screen flex items-center justify-center bg-dark-bg">
+      <div className="w-full h-full flex items-center justify-center bg-dark-bg">
         <div className="text-white">Chargement...</div>
       </div>
     );
   }
 
   return (
-    <div className="font-sans w-screen h-screen flex items-center justify-center bg-dark-bg">
-      <div className="w-[900px] h-[600px] glass-effect rounded-xl neon-shadow flex overflow-hidden relative">
+    <div className="w-full h-full flex items-center justify-center bg-dark-bg">
+      <div className="w-full h-full md:w-[900px] md:h-[600px] glass-effect rounded-xl neon-shadow flex overflow-hidden relative">
         <button
           onClick={() => setIsSettingsOpen(true)}
           className="absolute bottom-4 right-4 w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors flex items-center justify-center text-white z-10"
@@ -189,7 +190,7 @@ function App() {
           ⚙️
         </button>
         {creatorState!=='hidden' && <TodoCreator {...todoCreatorProps} />}
-        <LeftContainer {...leftContainerProps} />
+        {(showLeftSidebar || !isMobile) && <LeftContainer {...leftContainerProps} />}
         <MidContainer {...midContainerProps} showCalendar={showCalendar} />
         {showCalendar && <RightContainer {...rightContainerProps} />}
       </div>

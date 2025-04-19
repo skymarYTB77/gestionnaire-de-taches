@@ -96,7 +96,15 @@ function LeftContainer(props) {
   };
 
   return (
-    <div className={`${isCollapsed ? 'w-12' : 'w-48'} h-full bg-neutral-800 border-r border-neutral-700 flex flex-col left-sidebar transition-all duration-300 relative`}>
+    <div className={`${isCollapsed ? 'w-12' : 'w-48'} h-full bg-neutral-800 border-r border-neutral-700 flex flex-col left-sidebar transition-all duration-300 relative ${props.isMobile ? 'absolute' : ''}`}>
+      {props.isMobile && (
+        <button
+          onClick={() => props.setShowLeftSidebar(false)}
+          className="absolute right-2 top-2 text-white p-2"
+        >
+          ✕
+        </button>
+      )}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
         className="absolute -right-3 top-4 w-6 h-6 bg-neutral-700 rounded-full flex items-center justify-center text-white hover:bg-neutral-600 transition-colors z-10"
